@@ -1,0 +1,11 @@
+Code for SEAL (learning from Subgraphs, Embeddings, and Attributes for Link prediction).
+
+To be polished.
+
+in GNN, I assumed gpu number = 4.
+change DGCNN_path in GNN
+parelle in Main and parellel in GNN.m are not compatible. Change it back to GNN-parallel when released.
+
+
+Muhan Zhang, Washington University in St. Louis
+2/10/2018
