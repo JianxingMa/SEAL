@@ -18,9 +18,10 @@ case 1  % traditional link prediction benchmarks
     dataname = strvcat('USAir','NS','PB','Yeast','Celegans','Power','Router','Ecoli');
     dataname = strvcat('PB');
     dataname = strvcat('Yeast','Celegans','Power','Router');
-    dataname = strvcat('Power','USAir','NS','Yeast','Celegans','Router');
+    dataname = strvcat('Celegans', 'Power');
+    dataname = strvcat('Yeast');
     %method = [1, 2, 3, 4, 5, 6, 7];  % 1: WLNM,  2: common-neighbor-based,  3: path-based, 4: random walk  5: latent-feature-based,  6: stochastic block model,  7: DGCNN,  8: WL graph kernel (out of memory on PB, Yeast and Ecoli), 9: embedding methods
-    method =[7];
+    method =[8];
     h = 'auto';  % the maximum hop to extract enclosing subgraph
     include_embedding = 1;
     include_attribute = 0;
@@ -30,8 +31,8 @@ case 2  % network embedding benchmark datasets
     numOfExperiment = 5;        
     ratioTrain = 0.5; 
     dataname = strvcat('facebook', 'arxiv');  % networks without node attributes
-    dataname = strvcat('facebook');  % networks without node attributes
     dataname = strvcat('facebook', 'arxiv');  % networks without node attributes
+    dataname = strvcat('arxiv');  % networks without node attributes
     connected = true;
     method = [1];
     h = 1;
@@ -47,7 +48,7 @@ case 3  % network embedding benchmark datasets
     dataname = strvcat('BlogCatalog');
     dataname = strvcat('PPI_subgraph', 'Wikipedia', 'BlogCatalog');  % networks with node attributes
     connected = true;
-    method = [1];
+    method = [8];
     h = 1;
     include_embedding = 1;
     include_attribute = 1;
@@ -69,9 +70,9 @@ for ith_data = 1:size(dataname, 1)
     
     % parallelize the repeated experiments
     %poolobj = parpool(feature('numcores')); % to enable it, uncomment this line and change 'for' to 'parfor' in the next line, note GNN and graph kernel don't support parallel experiments now (since they extract subgraphs parallelly inside)
-    %poolobj = parpool(numOfExperiment); 
+    poolobj = parpool(numOfExperiment); 
     %poolobj = parpool(3); 
-    for ith_experiment = 1:numOfExperiment
+    parfor ith_experiment = 1:numOfExperiment
         ith_experiment
         if mod(ith_experiment, 10) == 0
                 tempcont = strcat(int2str(ith_experiment),'%... ');

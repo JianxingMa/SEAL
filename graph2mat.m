@@ -108,9 +108,9 @@ end
 
 display('Subgraph Extraction Begins...')
 tic;
-poolobj = parpool(10);
+%poolobj = parpool(10);
 %poolobj = parpool(feature('numcores'));  % parallel encoding, uncomment this line and change for to parfor in the next line to enable it
-parfor i = 1: all_size
+for i = 1: all_size
     ind = all(i, :);
     if include_embedding == 1 || include_attribute == 1
         [sample, max_nl_size] = subgraph2mat(ind, A, h, node_information);

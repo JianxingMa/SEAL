@@ -18,6 +18,26 @@ if nargin < 5
     data_name = 'train_data';
 end
 
+if h == 'auto'
+    [val_train, val_test] = DivideNet(train, 0.9, false);
+    h_val_train = triu(sparse(val_train), 1);
+    h_val_test = triu(sparse(val_test), 1);
+    [~, ~, val_test_pos, val_test_neg] = sample_neg(h_val_train, h_val_test, 1, 1);
+    val_test = {};
+    val_test.pos = val_test_pos;
+    val_test.neg = val_test_neg;
+    val_auc_AA = AA(val_train, val_test)
+    val_auc_CN = CN(val_train, val_test)
+    if val_auc_AA >= val_auc_CN
+        h = 2;
+        disp(['Choose h=', num2str(h)])
+    else
+        h = 1;
+        disp(['Choose h=', num2str(h)])
+    end
+end
+
+
 % extract enclosing subgraphs
 train_size = size(train_pos, 1) + size(train_neg, 1)
 test_size = size(test_pos, 1) + size(test_neg, 1)
