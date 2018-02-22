@@ -1,25 +1,34 @@
-function [auc] = GNN(train_mix, test, h, ith_experiment, data_name, include_embedding, include_attribute)   
-%  Usage: the main program for Weisfeiler-Lehman Neural Machine (WLNM)
+function [auc] = SEAL(train_mix, test, h, include_embedding, include_attribute, ith_experiment)   
+%  Usage: the main program for SEAL (learning from Subgraphs, Embeddings, and Attributes for Link prediction)
 %  --Input--
-%  -train_mix: a struct where train_mix.pos contains indices of positive train 
-%              links, train_mix.neg contains indices of negative train links, 
-%              train_mix.train is a sparse adjacency matrix of observed network 
-%              (1: link, 0: otherwise)
+%  -train_mix: a struct where train_mix.pos contains indices [(i1, j1); (i2, j2); ...] 
+%              of positive train links, train_mix.neg contains indices of negative 
+%              train links, train_mix.train is a sparse adjacency matrix of observed 
+%              network (1: link, 0: otherwise)
 %  -test: a struct where test.pos contains indices of positive test links, and
 %         test.neg contains indices of negative test links
-%  -h: maximum hop to extract neighboring nodes
-%  -ith_experiment: exp index, for parallel computing
+%  -h: maximum hop to extract enclosing subgraphs, h='auto' selects h from {1, 2}
+%  -include_embedding: 1 to include node embeddings into node information matrix, default 0
+%  -include_attribute: 1 to include node attributes into node information matrix, default 0
+%  -ith_experiment: exp index, for parallel computing, default 1
 %  --Output--
-%  -auc: the AUC score of WLNM
+%  -auc: the AUC score on testing links
 %
 %  *author: Muhan Zhang, Washington University in St. Louis
 %%
-    train = train_mix.train;
-    train_pos = train_mix.pos; train_neg = train_mix.neg;
-    test_pos = test.pos; test_neg = test.neg;
+    A = train_mix.train;  % the observed network
+    data_name = train_mix.data_name;
+    train_pos = train_mix.pos; train_neg = train_mix.neg;  % the indices of observed links used as training data
+    test_pos = test.pos; test_neg = test.neg;  % the indices of unobserved links used as testing data
+    
+    if nargin < 3
+        h = 1;
+    end
 
     if h == 'auto'
-        [val_train, val_test] = DivideNet(train, 0.9, false);
+    % randomly sample 10% train links as validation links, 
+    % select h from {1, 2} based on the validation performance of AA and CN
+        [val_train, val_test] = DivideNet(A, 0.9, false);
         h_val_train = triu(sparse(val_train), 1);
         h_val_test = triu(sparse(val_test), 1);
         [~, ~, val_test_pos, val_test_neg] = sample_neg(h_val_train, h_val_test, 1, 1);
@@ -37,31 +46,24 @@ function [auc] = GNN(train_mix, test, h, ith_experiment, data_name, include_embe
         end
     end
 
-
-    if nargin < 3
-        h = 1;
-    end
     if nargin < 4
-        ith_experiment = 1;
-    end
-    if nargin < 5
-        data_name = 'USAir';
-    end
-    if nargin < 6
         include_embedding = 0;
     end
-    if nargin < 7
+    if nargin < 5
         include_attribute = 0;
     end
+    if nargin < 6
+        ith_experiment = 1;
+    end
 
-    DGCNN_path = '../DGCNN/';
-    data_name_i = [data_name, '_', num2str(ith_experiment)];
+    DGCNN_path = '../DGCNN/';  % SEAL by default uses DGCNN for graph classification, change to your DGCNN path
+    data_name_i = [data_name, '_', num2str(ith_experiment)];  % the ith experiment's temporal data name
     
     train_size = size(train_pos, 1) + size(train_neg, 1)
     test_size = size(test_pos, 1) + size(test_neg, 1)
 
     % extract enclosing subgraphs
-    [data, max_size] = graph2mat([train_pos; train_neg], [test_pos; test_neg], train, h, ith_experiment, 0, data_name, include_embedding, include_attribute);
+    [data, max_size] = graph2mat([train_pos; train_neg], [test_pos; test_neg], A, h, ith_experiment, 0, data_name, include_embedding, include_attribute);
     label = [ones(size(train_pos, 1), 1); zeros(size(train_neg, 1), 1); ...
              ones(size(test_pos, 1), 1); zeros(size(test_neg, 1), 1)];  % graph labels (classes), not to confuse with node labels
 

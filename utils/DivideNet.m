@@ -1,4 +1,4 @@
-function [train test] = DivideNet(net, ratioTrain, connected)      %problem found, double select test link because of non-triangular matrix
+function [train test] = DivideNet(net, ratioTrain, connected)
 %%划分训练集和测试集，保证训练集连通
     net = triu(net) - diag(diag(net));  % convert to upper triangular matrix
     num_testlinks = floor((1-ratioTrain) * nnz(net));      

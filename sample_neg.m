@@ -5,8 +5,8 @@ function [train_pos, train_neg, test_pos, test_neg] = sample_neg(train, test, k,
 %  -test: half test positive adjacency matrix
 %  -k: how many times of negative links (w.r.t. pos links) to 
 %      sample
-%  -portion: if specified, only a portion of train and test will
-%            be returned
+%  -portion: if specified, only a portion of the sampled train
+%            and test links be returned
 %  --Output--
 %  column indices for four datasets
 %%

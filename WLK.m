@@ -1,10 +1,18 @@
-function [auc] = graph_kernel(train_mix, test, h, ith_experiment, data_name)
-% graph kernel methods for link prediction
+function [auc] = WLK(train_mix, test, h, ith_experiment)
+%  Weisfeiler-Lehman graph kernel for link prediction
+%  For usage, please refer to SEAL.m
+%  The code is partly adapted from the graph kernel toolbox
+%  of "Shervashidze et. al., Weisfeiler-lehman graph kernels"
+% 
+%  *author: Muhan Zhang, Washington University in St. Louis
+%%
 
+% please download graphkernels and libsvm to software/
 addpath(genpath('software/graphkernels'));
 addpath(genpath('software/libsvm-3.22/matlab'));
 
-train = train_mix.train;
+A = train_mix.train;
+data_name = train_mix.data_name;
 train_pos = train_mix.pos; train_neg = train_mix.neg;
 test_pos = test.pos; test_neg = test.neg;
 
@@ -14,12 +22,10 @@ end
 if nargin < 4
     ith_experiment = 1;
 end
-if nargin < 5
-    data_name = 'train_data';
-end
 
 if h == 'auto'
-    [val_train, val_test] = DivideNet(train, 0.9, false);
+    % automatically select h from {1, 2} by validation performance of AA and CN
+    [val_train, val_test] = DivideNet(A, 0.9, false);
     h_val_train = triu(sparse(val_train), 1);
     h_val_test = triu(sparse(val_test), 1);
     [~, ~, val_test_pos, val_test_neg] = sample_neg(h_val_train, h_val_test, 1, 1);
@@ -37,11 +43,10 @@ if h == 'auto'
     end
 end
 
-
 % extract enclosing subgraphs
 train_size = size(train_pos, 1) + size(train_neg, 1)
 test_size = size(test_pos, 1) + size(test_neg, 1)
-[data, ~] = graph2mat([train_pos; train_neg], [test_pos; test_neg], train, h, ith_experiment, 1, data_name); 
+[data, ~] = graph2mat([train_pos; train_neg], [test_pos; test_neg], A, h, ith_experiment, 1, data_name); 
 label = [ones(size(train_pos, 1), 1); zeros(size(train_neg, 1), 1); ...
          ones(size(test_pos, 1), 1); zeros(size(test_neg, 1), 1)];
 

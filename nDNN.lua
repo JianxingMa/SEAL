@@ -28,8 +28,8 @@ ith_experiment = params.ith_experiment
 
 
 num_gpus = cutorch.getDeviceCount()
---cutorch.setDevice(ith_experiment % num_gpus + 1)
-cutorch.setDevice((ith_experiment-1) % 3 + 1)
+cutorch.setDevice(ith_experiment % num_gpus + 1)
+--cutorch.setDevice((ith_experiment-1) % 3 + 1)
 
 -- network configuration
 l1 = params.inputdim

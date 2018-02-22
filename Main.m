@@ -1,58 +1,50 @@
-%  Main Program. Partly adapted from the codes of 
-%  Lu 2011, Link prediction in complex networks: A survey.
+%  Main evaluation code for "Link Prediction Based on Graph Neural Networks".
 %
 %  *author: Muhan Zhang, Washington University in St. Louis
 
 delete(gcp('nocreate'))
-
 addpath(genpath('utils'));
 datapath = 'data/';
 
-
+% change your general exp setting here
 setting = 1;
 switch setting
 case 1  % traditional link prediction benchmarks
-    numOfExperiment = 5;        
-    ratioTrain = 0.9;            
+    numOfExperiment = 1;        
+    workers = numOfExperiment;  % number of workers running parallelly
+    workers = 0;  % change workers to 0 to disable parallel loop of multiple exps
+    ratioTrain = 0.9; 
     connected = false; % whether to remove test links such that the remaining net is connected
     dataname = strvcat('USAir','NS','PB','Yeast','Celegans','Power','Router','Ecoli');
-    dataname = strvcat('PB');
-    dataname = strvcat('Yeast','Celegans','Power','Router');
-    dataname = strvcat('Celegans', 'Power');
-    dataname = strvcat('Yeast');
-    %method = [1, 2, 3, 4, 5, 6, 7];  % 1: WLNM,  2: common-neighbor-based,  3: path-based, 4: random walk  5: latent-feature-based,  6: stochastic block model,  7: DGCNN,  8: WL graph kernel (out of memory on PB, Yeast and Ecoli), 9: embedding methods
-    method =[8];
-    h = 'auto';  % the maximum hop to extract enclosing subgraph
-    include_embedding = 1;
+    dataname = strvcat('USAir');
+    %method = [1, 2, 3, 4, 5, 6, 7, 8, 9];  % 1: WLNM,  2: common-neighbor-based,  3: path-based, 4: random walk  5: matrix factorization,  6: stochastic block model,  7: SEAL,  8: WL graph kernel, 9: embedding methods
+    method =[7];
+    h = 'auto';  % the maximum hop to extract enclosing subgraph, h = 'auto' means to automatically select h from 1, 2
+    include_embedding = 1;  % whether to include node embeddings in node information matrix of SEAL
     include_attribute = 0;
     portion = 1;  % portion of observed links selected as training data
-case 2  % network embedding benchmark datasets
-    % settings of node2vec experiments (for link prediction)
+case 2  % network embedding benchmark datasets without node attributes
     numOfExperiment = 5;        
+    workers = 0;  % diable parallel computing for large networks
     ratioTrain = 0.5; 
-    dataname = strvcat('facebook', 'arxiv');  % networks without node attributes
-    dataname = strvcat('facebook', 'arxiv');  % networks without node attributes
-    dataname = strvcat('arxiv');  % networks without node attributes
+    dataname = strvcat('facebook', 'arxiv');  
     connected = true;
     method = [1];
     h = 1;
     include_embedding = 1;
     include_attribute = 0;
     portion = 1;
-case 3  % network embedding benchmark datasets
-    % settings of node2vec experiments (for multi-label node classification)
+case 3  % network embedding benchmark datasets with node attributes
     numOfExperiment = 5;        
+    workers = 0;  % diable parallel computing for large networks
     ratioTrain = 0.5; 
-    dataname = strvcat('PPI_subgraph', 'Wikipedia', 'BlogCatalog');  % networks with node attributes
-    dataname = strvcat('Wikipedia', 'PPI_subgraph');
-    dataname = strvcat('BlogCatalog');
     dataname = strvcat('PPI_subgraph', 'Wikipedia', 'BlogCatalog');  % networks with node attributes
     connected = true;
     method = [8];
     h = 1;
     include_embedding = 1;
     include_attribute = 1;
-    portion = 10000;  % randomly select 10000 observed links as positive training
+    portion = 10000;  % randomly select 10000 observed links as positive training (since selecting all is out of memory)
 end
 
 tic;
@@ -69,36 +61,33 @@ for ith_data = 1:size(dataname, 1)
     PredictorsName = [];
     
     % parallelize the repeated experiments
-    %poolobj = parpool(feature('numcores')); % to enable it, uncomment this line and change 'for' to 'parfor' in the next line, note GNN and graph kernel don't support parallel experiments now (since they extract subgraphs parallelly inside)
-    poolobj = parpool(numOfExperiment); 
-    %poolobj = parpool(3); 
-    parfor ith_experiment = 1:numOfExperiment
+    parfor (ith_experiment = 1:numOfExperiment, workers)
         ith_experiment
         if mod(ith_experiment, 10) == 0
                 tempcont = strcat(int2str(ith_experiment),'%... ');
                 disp(tempcont);
         end
 
-        rng(ith_experiment);  % generate fixed network splits for different methods
+        rng(ith_experiment);  % generate fixed network splits for different methods and exp numbers
 
-        % divide into train/test
-        [train, test] = DivideNet(net, ratioTrain, connected); % train test are now symmetric adjacency matrices without self loops                 
+        % divide net into train/test
+        [train, test] = DivideNet(net, ratioTrain, connected); % train test are now symmetric adjacency matrices without self loops 
         train = sparse(train); test = sparse(test);  % convert to sparse matrices
-        %train = spones(train + train'); test = spones(test + test');    
 
-        % sample negative links for train and test sets (used by learning based methods, not by heuristic methods)
+        % sample negative links 
         htrain = triu(train, 1);  % half train adjacency matrix
         htest = triu(test, 1);
         [train_pos, train_neg, test_pos, test_neg] = sample_neg(htrain, htest, 1, portion);
         test = {};
-        test.pos = test_pos; test.neg = test_neg; % evaluate performance on sampled test links
+        test.pos = test_pos; test.neg = test_neg;  % evaluate performance on sampled test links
         train_mix = {};
-        train_mix.train = train; % the observed network to extract enclosing subgraphs
-        train_mix.pos = train_pos; train_mix.neg = train_neg;
+        train_mix.train = train;  % the observed network to extract enclosing subgraphs
+        train_mix.data_name = strip(dataname(ith_data, :));  % store the name of the current data set
+        train_mix.pos = train_pos; train_mix.neg = train_neg;  % the train pos and neg links (used by learning based methods, not by heuristic methods)
 
         ithAUCvector = []; Predictors = []; % for recording results
 
-        % run link prediction methods
+        % Run link prediction methods
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %%% Weisfeiler-Lehman Neural Machine (WLNM)
         if ismember(1, method)
@@ -254,7 +243,7 @@ for ith_data = 1:size(dataname, 1)
        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if ismember(5, method)
-        % latent feature models
+        % matrix factorization
         disp('MF...');
         tempauc = MF(train, test, 5, ith_experiment);                 % matrix factorization
              Predictors = [Predictors 'MF	'];       ithAUCvector = [ithAUCvector tempauc];  
@@ -262,26 +251,26 @@ for ith_data = 1:size(dataname, 1)
             
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if ismember(6, method)
-        % latent feature models
+        % stochastic block model
         disp('SBM...');
         tempauc = SBM(train, test, 12);                 % stochastic block models
              Predictors = [Predictors 'SBM	'];       ithAUCvector = [ithAUCvector tempauc];  
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%% Graph Neural Network for Link Prediction
+        %%% SEAL
         if ismember(7, method)
-        disp('GNN...');
-        tempauc = GNN(train_mix, test, h, ith_experiment, strip(dataname(ith_data, :)), include_embedding, include_attribute);
-            Predictors = [Predictors 'GNN	'];      ithAUCvector = [ithAUCvector tempauc];
+        disp('SEAL...');
+        tempauc = SEAL(train_mix, test, h, include_embedding, include_attribute, ith_experiment);
+            Predictors = [Predictors 'SEAL	'];      ithAUCvector = [ithAUCvector tempauc];
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%% Graph Kernel + SVM for Link Prediction
+        %%% Weisfeiler-Lehman graph kernel for Link Prediction
         if ismember(8, method)
-        disp('Kernel...');
-        tempauc = graph_kernel(train_mix, test, h, ith_experiment, strip(dataname(ith_data, :)));
-            Predictors = [Predictors 'Kernel	'];      ithAUCvector = [ithAUCvector tempauc];
+        disp('WLK...');
+        tempauc = WLK(train_mix, test, h, ith_experiment);
+            Predictors = [Predictors 'WLK	'];      ithAUCvector = [ithAUCvector tempauc];
         end
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -289,18 +278,17 @@ for ith_data = 1:size(dataname, 1)
         if ismember(9, method)
         
         disp('Embedding...');
-        tempauc = embedding_lp(train_mix, test, ith_experiment, strip(dataname(ith_data, :)), 'node2vec');
+        tempauc = embedding_lp(train_mix, test, 'node2vec', ith_experiment);
             Predictors = [Predictors 'node2vec	'];      ithAUCvector = [ithAUCvector tempauc];
         
         disp('Embedding...');
-        tempauc = embedding_lp(train_mix, test, ith_experiment, strip(dataname(ith_data, :)), 'LINE');
+        tempauc = embedding_lp(train_mix, test, 'LINE', ith_experiment);
             Predictors = [Predictors 'LINE	'];      ithAUCvector = [ithAUCvector tempauc];
 
         disp('Embedding...');
-        tempauc = embedding_lp(train_mix, test, ith_experiment, strip(dataname(ith_data, :)), 'SPC');
+        tempauc = embedding_lp(train_mix, test, 'SPC', ith_experiment);
             Predictors = [Predictors 'SPC	'];      ithAUCvector = [ithAUCvector tempauc];
         end
-
 
         aucOfallPredictor(ith_experiment, :) = ithAUCvector; PredictorsName = Predictors;
     end

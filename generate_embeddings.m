@@ -1,4 +1,17 @@
 function [node_embeddings] = generate_embeddings(A, data_name, emd_method)
+%  Usage: generate node embeddings to support SEAL.m and embedding_lp.m
+%  --Input--
+%  -A: the observed network's adjacency matrix from which to generate 
+%      node embeddings
+%  -data_name: the name of the dataset
+%  -emd_method: 'node2vec', 'LINE', 'SPC', default 'node2vec'
+%  --Output--
+%  -node_embeddings: a matrix, ith row contains the ith node's embeddings
+%
+
+if nargin < 3
+    emd_method = 'node2vec'
+end
 
 [i, j] = find(triu(A));
 train = [i, j];
@@ -23,7 +36,6 @@ case 'LINE'
 
     assert(size(node_embeddings, 1) == size(A, 1));  % ensure all nodes have embeddings
 
-    
 case 'node2vec'
     cd data/embedding;
     dlmwrite(strcat(data_name, '.edgelist'), train, ' ');  % convert train to edgelist which will be read by node2vec
