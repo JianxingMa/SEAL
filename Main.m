@@ -20,6 +20,7 @@ case 1  % traditional link prediction benchmarks
     %method = [1, 2, 3, 4, 5, 6, 7, 8, 9];  % 1: WLNM,  2: common-neighbor-based,  3: path-based, 4: random walk  5: matrix factorization,  6: stochastic block model,  7: SEAL,  8: WL graph kernel, 9: embedding methods
     method =[7];
     h = 'auto';  % the maximum hop to extract enclosing subgraph, h = 'auto' means to automatically select h from 1, 2
+    h = 1;
     include_embedding = 1;  % whether to include node embeddings in node information matrix of SEAL
     include_attribute = 0;
     portion = 1;  % portion of observed links selected as training data
@@ -77,7 +78,7 @@ for ith_data = 1:size(dataname, 1)
         % sample negative links 
         htrain = triu(train, 1);  % half train adjacency matrix
         htest = triu(test, 1);
-        [train_pos, train_neg, test_pos, test_neg] = sample_neg(htrain, htest, 1, portion);
+        [train_pos, train_neg, test_pos, test_neg] = sample_neg(htrain, htest, 1, portion, false);
         test = {};
         test.pos = test_pos; test.neg = test_neg;  % evaluate performance on sampled test links
         train_mix = {};

@@ -1,10 +1,10 @@
 function [auc] = SEAL(train_mix, test, h, include_embedding, include_attribute, ith_experiment)   
-%  Usage: the main program for SEAL (learning from Subgraphs, Embeddings, and Attributes for Link prediction)
+%  Usage: the main program of SEAL (learning from Subgraphs, Embeddings, and Attributes for Link prediction)
 %  --Input--
 %  -train_mix: a struct where train_mix.pos contains indices [(i1, j1); (i2, j2); ...] 
 %              of positive train links, train_mix.neg contains indices of negative 
 %              train links, train_mix.train is a sparse adjacency matrix of observed 
-%              network (1: link, 0: otherwise)
+%              network (1: link, 0: otherwise), train_mix.data_name is dataset name
 %  -test: a struct where test.pos contains indices of positive test links, and
 %         test.neg contains indices of negative test links
 %  -h: maximum hop to extract enclosing subgraphs, h='auto' selects h from {1, 2}

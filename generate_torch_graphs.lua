@@ -1,4 +1,4 @@
--- Usage: for converting .mat graphs in tempdata/ into .dat format read by torch
+-- Usage: for converting .mat graphs in tempdata/data_name into .dat format read by torch
 -- require 'matio' installed
 -- *author: Muhan Zhang, Washington University in St. Louis
 
@@ -12,7 +12,7 @@ cmd:option('-ith_experiment',   1,              'Specify which experiment is run
 cmd:option('-multiLabel',       false,          'whether the given label is a vector of multiple labels')
 
 local opt = cmd:parse(arg or {})
-print('Converting dataset '..opt.dataName..'...')
+print('Converting dataset '..opt.dataName..' to Torch format...')
 
 t0 = os.time()
 dataname = opt.dataName
@@ -23,7 +23,7 @@ tmp_label = {}
 tmp_instance =  {}
 local i = 1
 while true do
-   print(i)
+   print('Torch is reading split '..i)
    if paths.filep(datapath..'split_'..i..'.mat') then
       local current_split = matio.load(datapath..'split_'..i..'.mat')
       local current_label = current_split[string.lower('l'..dataname)]

@@ -185,7 +185,7 @@ sample.nl = {};
 
 % calculate node labels
 %labels = nodes_dist + 1;  % use node distance as node labels
-labels = node_label(subgraph, 10, h);  % node labeling method
+labels = node_label(subgraph, 3, h);  % node labeling method
 max_nl_size = max(labels);  % determin the nl size after one-hot embedding
 sample.nl.values = uint16(labels);
 
