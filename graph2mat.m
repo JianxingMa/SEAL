@@ -5,7 +5,7 @@ function [data, max_size] = graph2mat(train, test, A, h, ith_experiment, for_gra
 %         node information matrix will contain one-hot encoding
 %         of node label + node embedding vector + node
 %         attribute vector; otherwise will only contain "integer"
-%         node labels
+%         node labels; used by SEAL
 %         
 %  --Input--
 %  -train: indices of training links

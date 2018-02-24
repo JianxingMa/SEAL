@@ -13,6 +13,8 @@ Please download our \[DGCNN software\](https://github.com/muhanzhang/DGCNN) to t
 
 Install the required libraries of DGCNN. Then run "Main.m" in MATLAB to do the experiments. By default, it will run SEAL on the USAir dataset for 1 time. Modify variables such as _numOfExperiment_, _ratioTrain_, _dataname_, _method_ in the setting part of "Main.m" to change experimental settings.
 
+Results will be saved in "data/result".
+
 Requirements
 ------------
 
@@ -66,11 +68,12 @@ Torch libaries nnsparse, svm are required in the neural network:
 
 Two network embedding software: node2vec and LINE, have been installed in "software/". To run embedding-based link prediction, liblinear is required. Please also change the names of "train.mexa64" and "predict.mexa64" to "liblinear_train.mexa64" and "liblinear_predict.mexa64" in "software/liblinear-2.1/matlab/", respectively.
 
-
 Miscellaneous
 -------------
 
 Code to be polished.
+
+Please feel free to email me or raise issues about any problems you may encounter. I am happy to answer them.
 
 In SEAL.m, I assumed gpu number = 4. Change it according to your configuration.
 
@@ -78,4 +81,5 @@ Now the main time bottleneck is the file I/O between MATLAB and Torch. To let To
 
 
 Muhan Zhang, Washington University in St. Louis
+muhan@wustl.edu
 2/10/2018

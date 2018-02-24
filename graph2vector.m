@@ -1,6 +1,6 @@
 function [data, label] = graph2vector(pos, neg, A, K)
 %  Usage: to convert links' enclosing subgraphs (both pos 
-%         and neg) into real vectors
+%         and neg) into real vectors, used by WLNM
 %  --Input--
 %  -pos: indices of positive links
 %  -neg: indices of negative links
