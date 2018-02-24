@@ -13,15 +13,15 @@ case 1  % traditional link prediction benchmarks
     numOfExperiment = 1;        
     workers = numOfExperiment;  % number of workers running parallelly
     workers = 0;  % change workers to 0 to disable parallel loop of multiple exps
-    ratioTrain = 0.9; 
-    connected = false; % whether to remove test links such that the remaining net is connected
+    ratioTrain = 0.9; % train split ratio
+    connected = false; % whether to sample test links while ensuring the remaining net is connected
     dataname = strvcat('USAir','NS','PB','Yeast','Celegans','Power','Router','Ecoli');
     dataname = strvcat('USAir');
     %method = [1, 2, 3, 4, 5, 6, 7, 8, 9];  % 1: WLNM,  2: common-neighbor-based,  3: path-based, 4: random walk  5: matrix factorization,  6: stochastic block model,  7: SEAL,  8: WL graph kernel, 9: embedding methods
     method =[7];
-    h = 'auto';  % the maximum hop to extract enclosing subgraph, h = 'auto' means to automatically select h from 1, 2
+    h = 'auto';  % the maximum hop to extract enclosing subgraphs, h = 'auto' means to automatically select h from 1, 2
     h = 1;
-    include_embedding = 1;  % whether to include node embeddings in node information matrix of SEAL
+    include_embedding = 1;  % whether to include node embeddings in node information matrix of SEAL, needs node2vec software
     include_attribute = 0;
     portion = 1;  % portion of observed links selected as training data
 case 2  % network embedding benchmark datasets without node attributes
