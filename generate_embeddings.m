@@ -16,6 +16,8 @@ end
 [i, j] = find(triu(A));
 train = [i, j];
 
+mkdir data/embedding;
+
 switch emd_method
 case 'LINE'
     cd data/embedding;

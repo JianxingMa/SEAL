@@ -77,6 +77,7 @@ function [auc] = SEAL(train_mix, test, h, include_embedding, include_attribute, 
     data_bytes = data_info.bytes
     n_splits = ceil(data_bytes / 1e8);  % split data into < 1GB splits, so that they can be saved in default .mat (torch only reads default .mat and -v7.3 is not supported)
     split_size = ceil(length(label) / n_splits);
+    system('mkdir tempdata')
     system(sprintf('mkdir tempdata/%s', data_name_i));
     system(sprintf('rm tempdata/%s/*', data_name_i));
     for i = 1: n_splits

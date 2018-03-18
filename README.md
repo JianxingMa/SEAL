@@ -9,7 +9,7 @@ Code for SEAL (learning from Subgraphs, Embeddings, and Attributes for Link pred
 How to run
 ----------
 
-Please download our \[DGCNN software\](https://github.com/muhanzhang/DGCNN) to the same level as this SEAL folder. DGCNN is the default graph neural network in SEAL.
+Please download our [\[DGCNN software\]](https://github.com/muhanzhang/DGCNN) to the same level as this SEAL folder. DGCNN is the default graph neural network in SEAL.
 
 Install the required libraries of DGCNN. Then run "Main.m" in MATLAB to do the experiments. By default, it will run SEAL on the USAir dataset for 1 time. Modify variables such as _numOfExperiment_, _ratioTrain_, _dataname_, _method_ in the setting part of "Main.m" to change experimental settings.
 
@@ -56,6 +56,7 @@ to compile liblinear on your unix machine.
 
 A graph canonization software Nauty is required to break ties in WL labelings:
 
+    cd software/nauty26r7
     ./configure
     make
 
@@ -66,14 +67,14 @@ Torch libaries nnsparse, svm are required in the neural network:
 
 ### Requirements for embedding methods
 
-Two network embedding software: node2vec and LINE, have been installed in "software/". To run embedding-based link prediction, liblinear is required. Please also change the names of "train.mexa64" and "predict.mexa64" to "liblinear_train.mexa64" and "liblinear_predict.mexa64" in "software/liblinear-2.1/matlab/", respectively.
+Two network embedding software: node2vec and LINE, have been installed in "software/". To run embedding-based link prediction, liblinear is required. After compiling liblinear, cd to "software/liblinear-2.1/matlab/" in MATLAB and type "make" to install its MATLAB interface. Please also change the names of "train.mexa64" and "predict.mexa64" to "liblinear_train.mexa64" and "liblinear_predict.mexa64" in "software/liblinear-2.1/matlab/", respectively.
 
 Miscellaneous
 -------------
 
 Code to be polished.
 
-Please feel free to email me or raise issues about any problems you may encounter. I am happy to answer them.
+Please feel free to email me or raise issues about any problems you encounter. I am happy to help you.
 
 In SEAL.m, I assumed gpu number = 4. Change it according to your configuration.
 
