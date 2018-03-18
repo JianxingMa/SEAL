@@ -38,6 +38,8 @@ MATLAB toolbox Bioinformatics is required to calculate graph shortest path dista
 
 Please install the network embedding software [\[node2vec\]](https://github.com/aditya-grover/node2vec) into "software/".
 
+If you cannot call Torch within MATLAB, please refer to this [\[README\]](https://github.com/muhanzhang/LinkPrediction) for fixings.
+
 ### Requirements for WLK
 
 The baseline WLK (Weisfeiler-Lehman graph kernel) requires installing libsvm. We include libsvm-3.22 already in "software/" folder. Type:
@@ -69,7 +71,7 @@ Torch libaries nnsparse, svm are required in the neural network:
 
 ### Requirements for embedding methods
 
-Two network embedding software: node2vec and LINE, have been installed in "software/". To run embedding-based link prediction, liblinear is required. After compiling liblinear, cd to "software/liblinear-2.1/matlab/" in MATLAB and type "make" to install its MATLAB interface. Please also change the names of "train.mexa64" and "predict.mexa64" to "liblinear_train.mexa64" and "liblinear_predict.mexa64" in "software/liblinear-2.1/matlab/", respectively.
+Two network embedding software: node2vec and LINE, have been included in "software/". If they do not work, you may need to reinstall them from source. To run embedding-based link prediction, liblinear is required. After compiling liblinear, cd to "software/liblinear-2.1/matlab/" in MATLAB and type "make" to install its MATLAB interface. Please also change the names of "train.mexa64" and "predict.mexa64" to "liblinear_train.mexa64" and "liblinear_predict.mexa64" in "software/liblinear-2.1/matlab/", respectively.
 
 Miscellaneous
 -------------
