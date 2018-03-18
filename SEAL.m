@@ -100,8 +100,6 @@ function [auc] = SEAL(train_mix, test, h, include_embedding, include_attribute, 
     % run DGCNN
     gpu = mod(ith_experiment - 1, 4) + 1;  % determine gpu ID, assuming you have 4 gpus
 
-    gpu = mod(ith_experiment - 1, 3) + 2;  % use gpus 1, 2, 3, gpu-4 leave for zhicheng
-
     data_pos = ['tempdata/', data_name_i];
     if include_embedding == 0 && include_attribute == 0
         cmd = sprintf('th %smain.lua -dataPos %s -dataName %s -maxNodeLabel %d -printAUC -save tempdata -testNumber %d -gpu %d -maxEpoch 50 -k 0.4 -fixed_shuffle original', DGCNN_path, data_pos, data_name_i, max_size, test_size, gpu)

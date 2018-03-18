@@ -36,6 +36,8 @@ To calculate AUC within DGCNN, install Torch library metrics:
 
 MATLAB toolbox Bioinformatics is required to calculate graph shortest path distance. 
 
+Please install the network embedding software [\[node2vec\]](https://github.com/aditya-grover/node2vec) into "software/".
+
 ### Requirements for WLK
 
 The baseline WLK (Weisfeiler-Lehman graph kernel) requires installing libsvm. We include libsvm-3.22 already in "software/" folder. Type:
