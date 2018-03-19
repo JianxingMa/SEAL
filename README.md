@@ -84,6 +84,17 @@ In SEAL.m, I assumed gpu number = 4. Change it according to your configuration.
 
 Now the main time bottleneck is the file I/O between MATLAB and Torch. To let Torch read .mat graphs, I have to first save .mat to disk, then convert .mat to .dat by Torch, then save .dat to disk, and finally load .dat by DGCNN. The I/O took too much time.
 
+Reference
+---------
+
+If you find the code useful, please cite our paper:
+
+    @article{zhang2018link,
+      title={Link Prediction Based on Graph Neural Networks},
+      author={Zhang, Muhan and Chen, Yixin},
+      journal={arXiv preprint arXiv:1802.09691},
+      year={2018}
+    }
 
 Muhan Zhang, Washington University in St. Louis
 muhan@wustl.edu
